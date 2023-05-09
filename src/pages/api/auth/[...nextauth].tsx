@@ -37,7 +37,7 @@ export default NextAuth({
       clientSecret: process.env.ZITADEL_CLIENT_SECRET,
       authorization: {
         params: {
-          scope: `openid email profile offline_access`,
+          scope: `openid email profile urn:zitadel:iam:org:id:${process.env.ZITADEL_ORG_ID} urn:zitadel:iam:org:project:id:212742184787509505:aud`,
         },
       },
       async profile(profile) {
@@ -68,7 +68,7 @@ export default NextAuth({
       // Access token has expired, try to update it
       return refreshAccessToken(token);
     },
-    async session({ session, token: { user, error: tokenError } }) {
+    async session({ session, token: { user, error: tokenError, accessToken} }) {
       session.user = {
         id: user?.id,
         email: user?.email,
@@ -77,6 +77,7 @@ export default NextAuth({
         loginName: user?.loginName,
       };
       session.clientId = process.env.ZITADEL_CLIENT_ID;
+      session.accessToken = accessToken
       session.error = tokenError;
       return session;
     },
